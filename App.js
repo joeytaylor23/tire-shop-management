@@ -1,21 +1,29 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { auth } from './firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import Inventory from './screens/Inventory';
+import AddTire from './screens/AddTire';
 
-export default function App() {
+const Stack = createNativeStackNavigator();
+
+function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(true); // Toggle between login and signup
+  const [isLogin, setIsLogin] = useState(true);
 
   const handleAuth = async () => {
     try {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
         Alert.alert('Login successful!');
+        navigation.replace('Inventory');  // 🚀 Go to Inventory after login
       } else {
         await createUserWithEmailAndPassword(auth, email, password);
         Alert.alert('Account created successfully!');
+        navigation.replace('Inventory');  // 🚀 Go to Inventory after signup
       }
     } catch (error) {
       Alert.alert('Error', error.message);
@@ -50,6 +58,17 @@ export default function App() {
         </Text>
       </TouchableOpacity>
     </View>
+  );
+}
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="AddTire">
+        <Stack.Screen name="AddTire" component={AddTire} />
+        <Stack.Screen name="Inventory" component={Inventory} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
